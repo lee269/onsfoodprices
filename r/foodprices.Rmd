@@ -1,0 +1,56 @@
+---
+title: "Food Prices"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+pacman::p_load(flexdashboard, here, tidyverse)
+
+tidy_data <- readRDS(here("data", "tidy", "pricedata.rds"))
+categories <- unique(tidy_data$category)
+
+```
+
+Inputs {.sidebar}
+======================================================================
+
+### Inputs
+
+```{r}
+
+selectInput("categories", label = "Category", choices = categories)
+
+```
+
+Charts
+======================================================================
+### Chart B
+
+```{r}
+
+plot_data <- reactive({
+
+  tidy_data %>% 
+  dplyr::filter(category == input$categories) 
+    
+})
+
+renderPlot({ 
+ggplot2::ggplot(data = plot_data(), aes(x = week, y = value, group = item, colour = item)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(vars(item))
+})
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
