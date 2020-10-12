@@ -8,10 +8,11 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-pacman::p_load(flexdashboard, here, tidyverse)
+pacman::p_load(flexdashboard, here, tidyverse, shinyWidgets)
 
 tidy_data <- readRDS(here("data", "tidy", "pricedata.rds"))
 categories <- unique(tidy_data$category)
+items <- unique(tidy_data$item)
 
 ```
 
@@ -23,6 +24,13 @@ Inputs {.sidebar}
 ```{r}
 
 selectInput("categories", label = "Category", choices = categories)
+
+pickerInput(inputId = "items",
+            label = "Item",
+            choices = items,
+            multiple = TRUE,
+            options = pickerOptions(actionsBox = TRUE)
+              )
 
 ```
 
@@ -51,6 +59,23 @@ ggplot2::ggplot(data = plot_data(), aes(x = week, y = value, group = item, colou
 ### Chart C
 
 ```{r}
+
+item_plot_data <- reactive({
+
+  tidy_data %>% 
+  dplyr::filter(item %in% input$items) 
+    
+})
+
+renderPlot({ 
+ggplot2::ggplot(data = item_plot_data(), aes(x = week, y = value, group = item, colour = item)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(vars(item))
+})
+
+
+
 
 ```
 
