@@ -20,7 +20,10 @@ extract_indices <- function(xlsx) {
     unpivotr::behead("left-up", category) %>% 
     unpivotr::behead("left", item) %>%
     dplyr::select(category, item, week, value = numeric) %>% 
-    dplyr::mutate(week = lubridate::dmy(week))  
+    dplyr::mutate(week = lubridate::dmy(week),
+                  category = recode(category, "Aggregated" = "All Food"),
+                  item = recode(item, "Aggregated" = paste("Total:", category))
+    )
 
   return(tidy_data)
 }
